@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Welcome to my retro terminal & neobrutalist portfolio. Explore my projects, skills, and about details in an interactive 8-bit OS style desktop.">
+  <title>Adamya.OS | Developer Portfolio</title>
+  <!-- Google Fonts for Retro/Mono/Pixel Aesthetics -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="crt">
+  
+  <!-- Custom Neon Caret Cursor -->
+  <div id="custom-cursor"></div>
+
+  <!-- CRT Monitor Glare and Vignette Overlay Effects -->
+  <div class="crt-overlay crt-scanlines"></div>
+  <div class="crt-overlay crt-flicker"></div>
+  <div class="crt-overlay crt-vignette"></div>
+
+  <!-- Boot Loader Diagnostic Console -->
+  <div id="boot-loader" class="fullscreen-panel">
+    <div class="boot-terminal">
+      <div id="boot-log"></div>
+      <div id="boot-prompt" class="hidden">
+        <span class="pulse-text">PRESS ANY KEY TO RUN ADAMYA.OS...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Desktop Environment -->
+  <div id="desktop" class="hidden">
+    
+    <!-- Top System Taskbar -->
+    <header id="taskbar">
+      <div class="taskbar-left">
+        <button id="start-btn" class="taskbar-btn active">
+          <span class="icon">💾</span> <span class="btn-text">ADAMYA.OS</span>
+        </button>
+        <div class="taskbar-divider"></div>
+        <div class="app-shortcuts">
+          <button class="shortcut-btn" data-target="window-terminal" title="Terminal">
+            <span class="icon">⌨️</span> <span class="shortcut-text">Terminal</span>
+          </button>
+          <button class="shortcut-btn" data-target="window-about" title="About Me">
+            <span class="icon">👤</span> <span class="shortcut-text">About</span>
+          </button>
+          <button class="shortcut-btn" data-target="window-skills" title="Skills">
+            <span class="icon">🛠️</span> <span class="shortcut-text">Skills</span>
+          </button>
+          <button class="shortcut-btn" data-target="window-projects" title="Projects">
+            <span class="icon">📁</span> <span class="shortcut-text">Projects</span>
+          </button>
+          <button class="shortcut-btn" data-target="window-contact" title="Contact Me">
+            <span class="icon">✉️</span> <span class="shortcut-text">Contact</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="taskbar-right">
+        <!-- Sound Toggle -->
+        <button id="sound-toggle" class="taskbar-icon-btn" title="Toggle Sound (8-Bit Synth)">
+          <span id="sound-icon">🔊</span>
+        </button>
+        
+        <!-- Theme Toggle Switcher -->
+        <div class="theme-select-container">
+          <select id="theme-selector" title="Select Theme">
+            <option value="cyberpunk">CYBERPUNK</option>
+            <option value="matrix">MATRIX</option>
+            <option value="classic">CLASSIC</option>
+            <option value="vaporwave">VAPORWAVE</option>
+          </select>
+        </div>
+
+        <div class="taskbar-divider"></div>
+        
+        <!-- System Clock -->
+        <div id="clock">00:00:00 PM</div>
+      </div>
+    </header>
+
+    <!-- Workspace Panel for Draggable Windows -->
+    <main id="workspace">
+      <!-- Live Interactive Canvas Background -->
+      <canvas id="workspace-canvas"></canvas>
+      
+      <!-- WINDOW 1: TERMINAL CONSOLE -->
+      <div id="window-terminal" class="window active" style="top: 8%; left: 8%; width: 44%; height: 60%;" data-workspace>
+        <div class="window-header">
+          <div class="window-title">
+            <span class="win-icon">⌨️</span> C:\SYSTEM\TERMINAL.EXE
+          </div>
+          <div class="window-controls">
+            <button class="win-btn minimize" title="Minimize">—</button>
+            <button class="win-btn maximize" title="Maximize">🗖</button>
+            <button class="win-btn close" title="Close">X</button>
+          </div>
+        </div>
+        <div class="window-body terminal-body">
+          <div class="terminal-history" id="terminal-history"></div>
+          <div class="terminal-input-line">
+            <span class="terminal-prompt">guest@adamya:~$</span>
+            <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" autofocus>
+          </div>
+        </div>
+      </div>
+
+      <!-- WINDOW 2: ABOUT ME -->
+      <div id="window-about" class="window active" style="top: 15%; left: 54%; width: 38%; height: 50%;" data-workspace>
+        <div class="window-header">
+          <div class="window-title">
+            <span class="win-icon">👤</span> C:\SYSTEM\ABOUT_ME.EXE
+          </div>
+          <div class="window-controls">
+            <button class="win-btn minimize" title="Minimize">—</button>
+            <button class="win-btn maximize" title="Maximize">🗖</button>
+            <button class="win-btn close" title="Close">X</button>
+          </div>
+        </div>
+        <div class="window-body default-body about-body">
+          <div class="about-grid">
+            <div class="about-left">
+              <!-- Pixel Art Image Placeholder/Generated Image -->
+              <div class="pixel-avatar-wrapper">
+                <img id="pixel-avatar" src="images/avatar.png" alt="Adamya Pixel Art" class="pixel-avatar">
+              </div>
+              <div class="system-stats">
+                <p><strong>NAME:</strong> Adamya</p>
+                <p><strong>ROLE:</strong> Full-Stack Dev</p>
+                <p><strong>LOC:</strong> New Delhi, IN</p>
+                <p><strong>HOST:</strong> localhost:3000</p>
+              </div>
+            </div>
+            <div class="about-right">
+              <h2 class="section-title">SYSTEM DESCRIPTION</h2>
+              <p class="bio-text">
+                Greetings, user! I am a Full-Stack Developer passionate about crafting highly interactive, modern, and visually compelling web applications. 
+              </p>
+              <p class="bio-text">
+                I specialize in turning lines of code into clean, scalable architectures and premium user experiences. I enjoy blending retro designs with bleeding-edge technologies.
+              </p>
+              <div class="social-box">
+                <h3 class="social-title">NETWORK PROTOCOLS:</h3>
+                <div class="social-links">
+                  <a href="https://github.com/Adamyaaa" target="_blank" class="social-link-btn">GITHUB</a>
+                  <a href="https://linkedin.com" target="_blank" class="social-link-btn">LINKEDIN</a>
+                  <a href="mailto:your.email@example.com" class="social-link-btn">EMAIL</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WINDOW 3: SKILLS -->
+      <div id="window-skills" class="window" style="top: 40%; left: 15%; width: 35%; height: 48%;" data-workspace>
+        <div class="window-header">
+          <div class="window-title">
+            <span class="win-icon">🛠️</span> C:\SYSTEM\SKILLS.EXE
+          </div>
+          <div class="window-controls">
+            <button class="win-btn minimize" title="Minimize">—</button>
+            <button class="win-btn maximize" title="Maximize">🗖</button>
+            <button class="win-btn close" title="Close">X</button>
+          </div>
+        </div>
+        <div class="window-body default-body skills-body">
+          <h2 class="section-title">SKILLS INVENTORY</h2>
+          
+          <div class="skills-section">
+            <h3 class="skill-category-title">FRONTEND MODULES</h3>
+            <div class="skill-bar-wrapper">
+              <span class="skill-name">HTML5 / CSS3</span>
+              <div class="skill-meter" data-percent="95">
+                <div class="skill-fill" style="width: 95%;"></div>
+                <span class="skill-percent">95%</span>
+              </div>
+            </div>
+            <div class="skill-bar-wrapper">
+              <span class="skill-name">JavaScript (ES6+)</span>
+              <div class="skill-meter" data-percent="90">
+                <div class="skill-fill" style="width: 90%;"></div>
+                <span class="skill-percent">90%</span>
+              </div>
+            </div>
+            <div class="skill-bar-wrapper">
+              <span class="skill-name">React / Next.js</span>
+              <div class="skill-meter" data-percent="85">
+                <div class="skill-fill" style="width: 85%;"></div>
+                <span class="skill-percent">85%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="skills-section">
+            <h3 class="skill-category-title">BACKEND SYSTEM</h3>
+            <div class="skill-bar-wrapper">
+              <span class="skill-name">Node.js / Express</span>
+              <div class="skill-meter" data-percent="80">
+                <div class="skill-fill" style="width: 80%;"></div>
+                <span class="skill-percent">80%</span>
+              </div>
+            </div>
+            <div class="skill-bar-wrapper">
+              <span class="skill-name">Python / Django</span>
+              <div class="skill-meter" data-percent="75">
+                <div class="skill-fill" style="width: 75%;"></div>
+                <span class="skill-percent">75%</span>
+              </div>
+            </div>
+            <div class="skill-bar-wrapper">
+              <span class="skill-name">SQL / MongoDB</span>
+              <div class="skill-meter" data-percent="80">
+                <div class="skill-fill" style="width: 80%;"></div>
+                <span class="skill-percent">80%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="skills-section">
+            <h3 class="skill-category-title">CORE PROTOCOLS</h3>
+            <div class="skill-bar-wrapper">
+              <span class="skill-name">Git & GitHub</span>
+              <div class="skill-meter" data-percent="90">
+                <div class="skill-fill" style="width: 90%;"></div>
+                <span class="skill-percent">90%</span>
+              </div>
+            </div>
+            <div class="skill-bar-wrapper">
+              <span class="skill-name">Docker / DevOps</span>
+              <div class="skill-meter" data-percent="70">
+                <div class="skill-fill" style="width: 70%;"></div>
+                <span class="skill-percent">70%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- WINDOW 4: PROJECTS -->
+      <div id="window-projects" class="window" style="top: 25%; left: 30%; width: 45%; height: 62%;" data-workspace>
+        <div class="window-header">
+          <div class="window-title">
+            <span class="win-icon">📁</span> C:\SYSTEM\PROJECTS.EXE
+          </div>
+          <div class="window-controls">
+            <button class="win-btn minimize" title="Minimize">—</button>
+            <button class="win-btn maximize" title="Maximize">🗖</button>
+            <button class="win-btn close" title="Close">X</button>
+          </div>
+        </div>
+        <div class="window-body default-body projects-body">
+          <h2 class="section-title">DEPLOYED SUB-ROUTINES</h2>
+          <div class="projects-container">
+            
+            <!-- Project 1 -->
+            <div class="project-card">
+              <div class="project-header">
+                <span class="project-tag">REACT</span>
+                <span class="project-tag">NODE</span>
+              </div>
+              <h3 class="project-title">NEURAL CHAT CONSOLE</h3>
+              <p class="project-desc">An AI chat terminal styled with a retro CRT screen. Connects to LLM endpoints and streams responses in realistic terminal typing speed.</p>
+              <div class="project-footer">
+                <a href="https://github.com/Adamyaaa" target="_blank" class="project-btn">[SOURCE_CODE]</a>
+                <a href="#" class="project-btn">[EXECUTE]</a>
+              </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="project-card">
+              <div class="project-header">
+                <span class="project-tag">HTML5</span>
+                <span class="project-tag">AUDIO_API</span>
+              </div>
+              <h3 class="project-title">SYNTH-WAVE CHIPTRACK</h3>
+              <p class="project-desc">A programmable 8-step chiptune sound sequencer built natively using Web Audio API nodes. Play, edit, and export retro audio loops.</p>
+              <div class="project-footer">
+                <a href="https://github.com/Adamyaaa" target="_blank" class="project-btn">[SOURCE_CODE]</a>
+                <a href="#" class="project-btn">[EXECUTE]</a>
+              </div>
+            </div>
+
+            <!-- Project 3 -->
+            <div class="project-card">
+              <div class="project-header">
+                <span class="project-tag">NEXT.JS</span>
+                <span class="project-tag">MONGODB</span>
+              </div>
+              <h3 class="project-title">RETRO-OS SHELL DATABASE</h3>
+              <p class="project-desc">A mock operating system database storing user-created command shortcuts, customize styles, and shell script configurations.</p>
+              <div class="project-footer">
+                <a href="https://github.com/Adamyaaa" target="_blank" class="project-btn">[SOURCE_CODE]</a>
+                <a href="#" class="project-btn">[EXECUTE]</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- WINDOW 5: CONTACT ME -->
+      <div id="window-contact" class="window" style="top: 35%; left: 45%; width: 32%; height: 52%;" data-workspace>
+        <div class="window-header">
+          <div class="window-title">
+            <span class="win-icon">✉️</span> C:\SYSTEM\CONTACT.EXE
+          </div>
+          <div class="window-controls">
+            <button class="win-btn minimize" title="Minimize">—</button>
+            <button class="win-btn maximize" title="Maximize">🗖</button>
+            <button class="win-btn close" title="Close">X</button>
+          </div>
+        </div>
+        <div class="window-body default-body contact-body">
+          <h2 class="section-title">COMMUNICATION LINK</h2>
+          <form id="contact-form" class="retro-form">
+            <div class="form-group">
+              <label for="form-name">USERID (NAME):</label>
+              <input type="text" id="form-name" required placeholder="GUEST_101" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label for="form-email">ENDPOINT (EMAIL):</label>
+              <input type="email" id="form-email" required placeholder="user@domain.com" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label for="form-message">TRANSMISSION DATA (MESSAGE):</label>
+              <textarea id="form-message" rows="4" required placeholder="Type your transmission here..."></textarea>
+            </div>
+            <button type="submit" class="form-submit-btn">TRANSMIT PACKET</button>
+          </form>
+          <div id="contact-success" class="contact-success-msg hidden">
+            <p class="success-title">*** PACKET TRANSMITTED ***</p>
+            <p>Your message has been processed successfully. Check Terminal for console logs.</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

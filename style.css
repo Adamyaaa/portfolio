@@ -1,0 +1,891 @@
+/* 
+  Aadi.OS - Stylesheet
+  Retro-Futuristic Terminal & Neobrutalist Design System
+*/
+
+/* 1. INITIAL SETUP & THEME VARIABLES */
+:root {
+  /* Default Theme: Cyberpunk Neon */
+  --bg-color: #0b0615;
+  --workspace-bg: #07030c;
+  --text-color: #00ffcc;
+  --text-secondary: #ff007f;
+  --theme-color: #ff007f;
+  --window-bg: #120b24;
+  --window-border: #ff007f;
+  --window-border-thick: 3px;
+  --win-header-bg: #1c0f38;
+  --win-header-text: #00ffcc;
+  --shadow-color: #000000;
+  --btn-bg: #211540;
+  --btn-text: #f5f0e8;
+  --btn-border: #ff007f;
+  
+  --font-mono: "Share Tech Mono", monospace;
+  --font-pixel: "VT323", monospace;
+  --font-retro: "Press Start 2P", monospace;
+  
+  --card-shadow: 4px 4px 0px var(--shadow-color);
+  --btn-shadow: 3px 3px 0px var(--shadow-color);
+
+  /* Workspace Background wallpaper and filter */
+  --workspace-bg-image: url('images/background.png');
+  --workspace-filter: opacity(0.32) saturate(1.3) contrast(1.1) brightness(0.6);
+}
+
+/* Theme: Matrix (Retro Green Hacker) */
+body.theme-matrix {
+  --bg-color: #020502;
+  --workspace-bg: #000000;
+  --text-color: #39ff14;
+  --text-secondary: #008f11;
+  --theme-color: #00ff3b;
+  --window-bg: #050a06;
+  --window-border: #00ff3b;
+  --win-header-bg: #0a140c;
+  --win-header-text: #39ff14;
+  --shadow-color: #000000;
+  --btn-bg: #0e1f11;
+  --btn-text: #39ff14;
+  --btn-border: #00ff3b;
+
+  --workspace-filter: opacity(0.2) grayscale(1) sepia(1) hue-rotate(85deg) saturate(4) brightness(0.45);
+}
+
+/* Theme: Classic (Windows 95 / Beige Neobrutalist) */
+body.theme-classic {
+  --bg-color: #08121e;
+  --workspace-bg: #1c2738;
+  --text-color: #1a1a1a;
+  --text-secondary: #555555;
+  --theme-color: #0055ff;
+  --window-bg: #f5f0e8;
+  --window-border: #1a1a1a;
+  --win-header-bg: #1a1a1a;
+  --win-header-text: #f5f0e8;
+  --shadow-color: #1a1a1a;
+  --btn-bg: #e2dbcd;
+  --btn-text: #1a1a1a;
+  --btn-border: #1a1a1a;
+  
+  --card-shadow: 5px 5px 0px var(--shadow-color);
+  --btn-shadow: 3px 3px 0px var(--shadow-color);
+
+  --workspace-filter: opacity(0.08) grayscale(1) brightness(0.85);
+}
+
+/* Theme: Vaporwave (Synthwave Sunset) */
+body.theme-vaporwave {
+  --bg-color: #180529;
+  --workspace-bg: #0e021a;
+  --text-color: #00f0ff;
+  --text-secondary: #ff007f;
+  --theme-color: #ff7700;
+  --window-bg: #2d1847;
+  --window-border: #00f0ff;
+  --win-header-bg: #3f195c;
+  --win-header-text: #ff007f;
+  --shadow-color: #ff007f;
+  --btn-bg: #46256b;
+  --btn-text: #00f0ff;
+  --btn-border: #ff007f;
+
+  --workspace-filter: opacity(0.3) hue-rotate(280deg) saturate(1.6) contrast(1.1) brightness(0.55);
+}
+
+/* 2. BASE RESET & CRT OVERLAYS */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  cursor: none !important; /* Force custom cursor */
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-color);
+  font-family: var(--font-mono);
+  color: var(--text-color);
+}
+
+/* Custom Cursor styling */
+#custom-cursor {
+  position: fixed;
+  width: 12px;
+  height: 20px;
+  background-color: var(--text-color);
+  border: 1px solid var(--bg-color);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  box-shadow: 0 0 8px var(--text-color);
+  animation: cursor-blink 1s infinite steps(2);
+  display: block;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* CRT Screen Glare & Scanlines Layer */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Horizontal rolling scanlines */
+.crt-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.2) 50%
+  );
+  background-size: 100% 4px;
+}
+
+/* Subtle CRT flickering screen simulation */
+.crt-flicker {
+  background-color: rgba(18, 16, 16, 0.02);
+  opacity: 0.15;
+  animation: crt-flicker-anim 0.15s infinite;
+}
+
+@keyframes crt-flicker-anim {
+  0% { opacity: 0.15; }
+  50% { opacity: 0.18; }
+  100% { opacity: 0.14; }
+}
+
+/* CRT monitor vignetting shadow mask */
+.crt-vignette {
+  background: radial-gradient(
+    circle, 
+    rgba(0,0,0,0) 60%, 
+    rgba(0,0,0,0.5) 120%
+  );
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.7);
+}
+
+/* 3. BOOT LOADER SCREEN */
+.fullscreen-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #030303;
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.boot-terminal {
+  width: 80%;
+  max-width: 900px;
+  height: 70%;
+  font-family: var(--font-pixel);
+  font-size: 24px;
+  line-height: 1.4;
+  color: #39ff14;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#boot-log {
+  white-space: pre-wrap;
+  overflow-y: auto;
+  max-height: 90%;
+}
+
+.pulse-text {
+  font-family: var(--font-retro);
+  font-size: 14px;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.fade-out {
+  animation: fade-out-anim 0.8s forwards ease-in-out;
+}
+
+@keyframes fade-out-anim {
+  0% { opacity: 1; }
+  100% { opacity: 0; display: none; z-index: -1; }
+}
+
+/* 4. MAIN DESKTOP ENVIRONMENT */
+#desktop {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: var(--workspace-bg);
+}
+
+/* 5. TOP TASKBAR */
+#taskbar {
+  height: 44px;
+  background-color: var(--win-header-bg);
+  border-bottom: var(--window-border-thick) solid var(--window-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  z-index: 500;
+  font-family: var(--font-mono);
+}
+
+.taskbar-left, .taskbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.taskbar-divider {
+  width: 2px;
+  height: 24px;
+  background-color: var(--window-border);
+  margin: 0 4px;
+}
+
+.taskbar-btn {
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--btn-border);
+  font-family: var(--font-retro);
+  font-size: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.taskbar-btn:active, .taskbar-btn.active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--shadow-color);
+  background-color: var(--theme-color);
+  color: #000;
+  border-color: #000;
+}
+
+.app-shortcuts {
+  display: flex;
+  gap: 6px;
+}
+
+.shortcut-btn {
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--btn-border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.shortcut-btn:hover {
+  background-color: var(--text-secondary);
+  color: #fff;
+}
+
+.shortcut-btn.active {
+  background-color: var(--text-color);
+  color: #000;
+  border-color: var(--text-color);
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.5);
+  transform: translate(1px, 1px);
+}
+
+.taskbar-icon-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-select-container select {
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--btn-border);
+  font-family: var(--font-retro);
+  font-size: 8px;
+  padding: 4px 6px;
+  outline: none;
+}
+
+#clock {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: bold;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--btn-border);
+  padding: 4px 10px;
+  box-shadow: inset 2px 2px 3px rgba(0,0,0,0.5);
+}
+
+/* 6. WORKSPACE & GENERAL WINDOW LAYOUT */
+#workspace {
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden;
+  padding: 10px;
+  background-color: var(--workspace-bg);
+}
+
+#workspace-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.window {
+  position: absolute;
+  background-color: var(--window-bg);
+  border: var(--window-border-thick) solid var(--window-border);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  min-width: 280px;
+  min-height: 200px;
+  transition: box-shadow 0.1s ease, border-color 0.1s ease;
+}
+
+.window.active-focus {
+  z-index: 200 !important;
+  box-shadow: 6px 6px 0px var(--shadow-color);
+}
+
+.window-header {
+  height: 34px;
+  background-color: var(--win-header-bg);
+  border-bottom: var(--window-border-thick) solid var(--window-border);
+  color: var(--win-header-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  user-select: none;
+  font-weight: bold;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.window-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.window-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.win-btn {
+  width: 22px;
+  height: 22px;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--btn-border);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 1px 1px 0px var(--shadow-color);
+}
+
+.win-btn:hover {
+  background-color: var(--text-secondary);
+  color: #fff;
+}
+
+.win-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.window-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Scrollbar customizations */
+.window-body::-webkit-scrollbar {
+  width: 10px;
+}
+.window-body::-webkit-scrollbar-track {
+  background-color: var(--bg-color);
+  border-left: 2px solid var(--window-border);
+}
+.window-body::-webkit-scrollbar-thumb {
+  background-color: var(--window-border);
+  border: 2px solid var(--bg-color);
+}
+
+.default-body {
+  padding: 20px;
+  font-family: var(--font-mono);
+  color: var(--text-color);
+}
+
+/* Neobrutalist Headers inside Windows */
+.section-title {
+  font-family: var(--font-retro);
+  font-size: 14px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--window-border);
+  padding-bottom: 6px;
+  color: var(--text-color);
+  text-transform: uppercase;
+}
+
+/* 7. WINDOW-SPECIFIC DETAILS */
+
+/* A. TERMINAL WINDOW */
+.terminal-body {
+  background-color: #030206;
+  color: #39ff14; /* Classic neon green */
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+body.theme-classic .terminal-body {
+  color: #1a1a1a;
+  background-color: #fcfcfc;
+}
+
+.terminal-history {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+}
+
+.terminal-prompt {
+  margin-right: 8px;
+  user-select: none;
+  font-weight: bold;
+}
+
+#terminal-input {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* B. ABOUT WINDOW */
+.about-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 20px;
+  height: 100%;
+}
+
+.pixel-avatar-wrapper {
+  width: 120px;
+  height: 120px;
+  border: 3px solid var(--window-border);
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: var(--btn-shadow);
+  margin-bottom: 12px;
+}
+
+.pixel-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.system-stats {
+  font-size: 11px;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.bio-text {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.social-box {
+  margin-top: 20px;
+  border: 2px dashed var(--window-border);
+  padding: 12px;
+}
+
+.social-title {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.social-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.social-link-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-decoration: none;
+  color: var(--btn-text);
+  background-color: var(--btn-bg);
+  border: 2px solid var(--btn-border);
+  padding: 6px 12px;
+  font-weight: bold;
+  box-shadow: var(--btn-shadow);
+  display: inline-block;
+}
+
+.social-link-btn:hover {
+  background-color: var(--text-color);
+  color: #000;
+  border-color: var(--text-color);
+}
+
+.social-link-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* C. SKILLS WINDOW */
+.skills-body {
+  overflow-y: auto;
+}
+
+.skills-section {
+  margin-bottom: 20px;
+}
+
+.skill-category-title {
+  font-family: var(--font-retro);
+  font-size: 10px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+}
+
+.skill-bar-wrapper {
+  margin-bottom: 12px;
+}
+
+.skill-name {
+  font-size: 12px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.skill-meter {
+  height: 24px;
+  border: 2px solid var(--window-border);
+  background-color: var(--bg-color);
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.skill-fill {
+  height: 100%;
+  background-color: var(--text-color);
+  box-shadow: inset -4px 0 0 rgba(0,0,0,0.15);
+}
+
+body.theme-classic .skill-fill {
+  background-color: var(--theme-color);
+}
+
+.skill-percent {
+  position: absolute;
+  right: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-color);
+  mix-blend-mode: difference;
+}
+
+/* D. PROJECTS WINDOW */
+.projects-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.project-card {
+  border: 2px solid var(--window-border);
+  padding: 16px;
+  box-shadow: var(--btn-shadow);
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+body.theme-classic .project-card {
+  background-color: #fff;
+}
+
+.project-header {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.project-tag {
+  font-size: 9px;
+  font-family: var(--font-retro);
+  background-color: var(--text-secondary);
+  color: #fff;
+  padding: 2px 6px;
+}
+
+.project-title {
+  font-family: var(--font-retro);
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+body.theme-classic .project-title {
+  color: #1a1a1a;
+}
+
+.project-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.project-footer {
+  display: flex;
+  gap: 10px;
+}
+
+.project-btn {
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.project-btn:hover {
+  text-decoration: underline;
+  color: var(--text-secondary);
+}
+
+/* E. CONTACT WINDOW */
+.retro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.form-group input, .form-group textarea {
+  font-family: var(--font-mono);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 2px solid var(--window-border);
+  padding: 10px;
+  outline: none;
+  box-shadow: inset 2px 2px 0px var(--shadow-color);
+}
+
+body.theme-classic .form-group input, 
+body.theme-classic .form-group textarea {
+  background-color: #fff;
+  color: #1a1a1a;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+  border-color: var(--text-secondary);
+  box-shadow: inset 2px 2px 0px var(--shadow-color), 0 0 5px var(--text-secondary);
+}
+
+.form-submit-btn {
+  font-family: var(--font-retro);
+  font-size: 11px;
+  padding: 10px;
+  border: 2px solid var(--btn-border);
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  box-shadow: var(--btn-shadow);
+  margin-top: 10px;
+}
+
+.form-submit-btn:hover {
+  background-color: var(--text-color);
+  color: #000;
+  border-color: var(--text-color);
+}
+
+.form-submit-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.contact-success-msg {
+  border: 2px dashed #00ff00;
+  color: #00ff00;
+  padding: 16px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin-top: 20px;
+}
+
+body.theme-classic .contact-success-msg {
+  color: #008800;
+  border-color: #008800;
+}
+
+.success-title {
+  font-family: var(--font-retro);
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+
+/* 8. SYSTEM UTILITY CLASSES */
+.window.minimized {
+  display: none !important;
+}
+
+.window.maximized {
+  top: 44px !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: calc(100% - 44px) !important;
+}
+
+/* 9. MOBILE RESPONSIVE ADAPTATIONS */
+@media (max-width: 768px) {
+  * {
+    cursor: auto !important; /* Restore default cursor on mobile touch screens */
+  }
+  
+  #custom-cursor {
+    display: none !important;
+  }
+  
+  #taskbar {
+    height: auto;
+    flex-direction: column;
+    padding: 6px;
+    gap: 6px;
+  }
+  
+  .taskbar-left, .taskbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .app-shortcuts {
+    display: flex;
+    overflow-x: auto;
+    width: auto;
+    max-width: 70vw;
+    padding-bottom: 2px;
+  }
+  
+  .shortcut-text {
+    display: none; /* Icon-only taskbar on narrow mobile screens */
+  }
+  
+  #workspace {
+    overflow-y: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 10px;
+  }
+
+  .window {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 80vh !important;
+  }
+  
+  .window.maximized {
+    height: 80vh !important;
+    top: 0 !important;
+  }
+  
+  .about-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  
+  .pixel-avatar-wrapper {
+    margin: 0 auto 12px;
+  }
+}

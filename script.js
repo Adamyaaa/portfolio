@@ -833,6 +833,21 @@ CORE CS:
     MVC and microservices patterns, JWT auth, and bcrypt hashing.
     Stack: Node.js, Express.js, MongoDB, Mongoose, JWT, Bcrypt
     Repository: https://github.com/Adamyaaa/subsciption-manager
+
+[4] SHOP-LEE (SHOPPING PLATFORM)
+    Description: Next.js e-commerce storefront with product browsing,
+    cart management, and checkout flows.
+    Stack: Next.js
+    Repository: https://github.com/Adamyaaa/Shop-lee
+    Live Link: https://shoplee-three.vercel.app/
+
+[5] SUPERVISOR MULTI-AGENT WORKFLOW
+    Description: LangGraph multi-agent demos - subgraphs with shared
+    and transformed state, plus a Supervisor-Worker system routing
+    between Enhancer, Researcher, and Coder agents with a Validator
+    quality-check loop.
+    Stack: Python, LangGraph, LangChain, OpenAI, Tavily
+    Repository: https://github.com/Adamyaaa/Supervisor-multi-agent-workflow
 --------------------------------------------------`;
   },
   

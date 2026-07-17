@@ -5,7 +5,7 @@
 
 // 1. STATE & GLOBAL VARIABLES
 const state = {
-  activeTheme: 'cyberpunk',
+  activeTheme: 'classic',
   soundEnabled: true,
   audioCtx: null,
   focusedWindow: null,
@@ -757,7 +757,7 @@ const commands = {
   projects - Query listing of deployed sub-routines
   contact  - View mail link endpoint contact form rules
   theme    - Switch desktop stylesheet skins.
-             Usage: theme [cyber / matrix / classic / vapor]
+             Usage: theme [classic / vapor]
   beep     - Trigger audio oscillator beep test
   date     - Query local system real-time clock
   clear    - Flush console buffer log
@@ -921,23 +921,20 @@ function handleCommand(cmdLine) {
   
   if (cmd === 'theme') {
     if (tokens.length < 2) {
-      history.innerHTML += `Usage: theme [cyber / matrix / classic / vapor]\nCurrent theme: ${state.activeTheme}\n`;
+      history.innerHTML += `Usage: theme [classic / vapor]\nCurrent theme: ${state.activeTheme}\n`;
     } else {
       const selected = tokens[1].toLowerCase();
       const themes = {
-        cyber: 'cyberpunk',
-        matrix: 'matrix',
         classic: 'classic',
         vapor: 'vaporwave',
-        cyberpunk: 'cyberpunk',
         vaporwave: 'vaporwave'
       };
-      
+
       if (themes[selected]) {
         changeTheme(themes[selected]);
         history.innerHTML += `Stylesheet loaded: ${themes[selected].toUpperCase()} Skin initialized.\n`;
       } else {
-        history.innerHTML += `Theme "${tokens[1]}" not found. Try cyber, matrix, classic, or vapor.\n`;
+        history.innerHTML += `Theme "${tokens[1]}" not found. Try classic or vapor.\n`;
         sounds.error();
       }
     }
@@ -960,19 +957,17 @@ function handleCommand(cmdLine) {
 function changeTheme(themeName) {
   const body = document.body;
   const selector = document.getElementById('theme-selector');
-  
+
   // Remove existing themes
-  body.classList.remove('theme-matrix', 'theme-classic', 'theme-vaporwave');
-  
+  body.classList.remove('theme-vaporwave');
+
   state.activeTheme = themeName;
-  selector.value = themeName === 'cyberpunk' ? 'cyberpunk' : 
-                   themeName === 'matrix' ? 'matrix' : 
-                   themeName === 'classic' ? 'classic' : 'vaporwave';
-  
-  if (themeName !== 'cyberpunk') {
+  selector.value = themeName;
+
+  if (themeName !== 'classic') {
     body.classList.add(`theme-${themeName}`);
   }
-  
+
   // Re-emit tone to signal change
   sounds.windowOpen();
 }
@@ -1180,27 +1175,11 @@ function initInteractiveBackground() {
 
 
   // State caches for animations
-  let matrixDrops = [];
-  let cyberpunkGridPhase = 0;
   let vaporwaveGridPhase = 0;
   let classicParticles = [];
   let stars = [];
 
-  // A. Matrix Setup
-  function initMatrix() {
-    matrixDrops = [];
-    const columns = Math.ceil(width / 16);
-    for (let i = 0; i < columns; i++) {
-      matrixDrops.push({
-        x: i * 16,
-        y: Math.random() * -height,
-        speed: 2 + Math.random() * 4,
-        chars: "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890QWERTYUIOPASDFGHJKLZXCVBNM".split("")
-      });
-    }
-  }
-
-  // B. Classic Constellation Setup
+  // A. Classic Constellation Setup
   function initClassic() {
     classicParticles = [];
     const count = Math.min(50, Math.floor((width * height) / 18000));
@@ -1215,23 +1194,20 @@ function initInteractiveBackground() {
     }
   }
 
-  // C. Cyberpunk & Vaporwave Stars Setup
+  // B. Vaporwave Drifting Particles Setup
   function initStars() {
     stars = [];
     for (let i = 0; i < 70; i++) {
       stars.push({
         x: (Math.random() - 0.5) * width,
         y: (Math.random() - 0.5) * height,
-        z: Math.random() * width,
-        color: Math.random() > 0.45 ? '#00e5ff' : '#ff2d78'
+        z: Math.random() * width
       });
     }
   }
 
   function setupActiveTheme() {
-    if (state.activeTheme === 'matrix') {
-      initMatrix();
-    } else if (state.activeTheme === 'classic') {
+    if (state.activeTheme === 'classic') {
       initClassic();
     } else {
       initStars();
@@ -1247,113 +1223,7 @@ function initInteractiveBackground() {
     setupActiveTheme();
   };
 
-  // 1. Theme: MATRIX (Digital Rain)
-  function drawMatrix() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.font = '16px monospace';
-    const isClassic = document.body.classList.contains('theme-classic');
-    ctx.fillStyle = isClassic ? '#1a1a1a' : '#39ff14';
-    
-    if (matrixDrops.length === 0) initMatrix();
-
-    for (let i = 0; i < matrixDrops.length; i++) {
-      const drop = matrixDrops[i];
-      const char = drop.chars[Math.floor(Math.random() * drop.chars.length)];
-      ctx.fillText(char, drop.x, drop.y);
-      drop.y += drop.speed;
-
-      if (drop.y > height && Math.random() > 0.975) {
-        drop.y = Math.random() * -100;
-      }
-    }
-  }
-
-  // 2. Theme: CYBERPUNK (3D Grid & Starfield)
-  function drawCyberpunk() {
-    ctx.fillStyle = '#080312';
-    ctx.fillRect(0, 0, width, height);
-
-    const centerX = width / 2;
-    const centerY = height * 0.4;
-    
-    // Starfield Warp - Update positions
-    if (stars.length === 0) initStars();
-    for (let i = 0; i < stars.length; i++) {
-      const s = stars[i];
-      s.z -= 3;
-      if (s.z <= 0) {
-        s.z = width;
-        s.x = (Math.random() - 0.5) * width;
-        s.y = (Math.random() - 0.5) * height;
-      }
-    }
-
-    // Draw Cyan stars (Batch 1)
-    ctx.fillStyle = '#00e5ff';
-    for (let i = 0; i < stars.length; i++) {
-      const s = stars[i];
-      if (s.color !== '#00e5ff') continue;
-      const k = 100 / s.z;
-      const px = Math.round(s.x * k + centerX);
-      const py = Math.round(s.y * k + centerY);
-      const size = Math.max(1, Math.round((1 - s.z / width) * 4));
-      ctx.fillRect(px - Math.round(size/2), py - Math.round(size/2), size, size);
-    }
-
-    // Draw Pink stars (Batch 2)
-    ctx.fillStyle = '#ff2d78';
-    for (let i = 0; i < stars.length; i++) {
-      const s = stars[i];
-      if (s.color !== '#ff2d78') continue;
-      const k = 100 / s.z;
-      const px = Math.round(s.x * k + centerX);
-      const py = Math.round(s.y * k + centerY);
-      const size = Math.max(1, Math.round((1 - s.z / width) * 4));
-      ctx.fillRect(px - Math.round(size/2), py - Math.round(size/2), size, size);
-    }
-
-    const gridStartY = height * 0.45;
-    const vanishX = centerX;
-    const vanishY = centerY;
-
-    // 3D Perspective Grid - Vertical lines batched
-    ctx.strokeStyle = '#ff2d78';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    const lineCount = 20;
-    for (let i = 0; i <= lineCount; i++) {
-      const angleRatio = i / lineCount;
-      const endX = Math.round(width * (angleRatio * 2 - 0.5));
-      ctx.moveTo(vanishX, vanishY);
-      ctx.lineTo(endX, height);
-    }
-    ctx.stroke();
-
-    // Horizontal sliding gridlines - batched and Y perspective rounded to prevent subpixel anti-aliasing lag
-    cyberpunkGridPhase += 0.6;
-    if (cyberpunkGridPhase >= 40) cyberpunkGridPhase = 0;
-
-    const baseOffset = Math.round(cyberpunkGridPhase);
-    ctx.strokeStyle = '#00e5ff';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let yOffset = baseOffset; yOffset < height - gridStartY; yOffset += 28) {
-      const normY = yOffset / (height - gridStartY);
-      const gridY = Math.round(gridStartY + (height - gridStartY) * Math.pow(normY, 2.2));
-      
-      const widthRatio = (gridY - vanishY) / (height - vanishY);
-      const startX = Math.round(vanishX + (-width * 0.5 - vanishX) * widthRatio);
-      const endX = Math.round(vanishX + (width * 1.5 - vanishX) * widthRatio);
-
-      ctx.moveTo(startX, gridY);
-      ctx.lineTo(endX, gridY);
-    }
-    ctx.stroke();
-  }
-
-  // 3. Theme: VAPORWAVE (Sunset Horizon & Drift)
+  // 1. Theme: VAPORWAVE (Sunset Horizon & Drift)
   function drawVaporwave() {
     ctx.fillStyle = '#0a0212';
     ctx.fillRect(0, 0, width, height);
@@ -1437,9 +1307,8 @@ function initInteractiveBackground() {
 
     if (classicParticles.length === 0) initClassic();
 
-    const isClassicMode = document.body.classList.contains('theme-classic');
-    const pColor = isClassicMode ? 'rgba(26, 26, 26, 0.65)' : 'rgba(0, 85, 255, 0.65)';
-    const lColor = isClassicMode ? 'rgba(26, 26, 26, 0.12)' : 'rgba(0, 85, 255, 0.1)';
+    const pColor = 'rgba(26, 26, 26, 0.65)';
+    const lColor = 'rgba(26, 26, 26, 0.12)';
 
     for (let i = 0; i < classicParticles.length; i++) {
       const p = classicParticles[i];
@@ -1477,14 +1346,10 @@ function initInteractiveBackground() {
   }
 
   function loop() {
-    if (state.activeTheme === 'matrix') {
-      drawMatrix();
-    } else if (state.activeTheme === 'classic') {
+    if (state.activeTheme === 'classic') {
       drawClassic();
-    } else if (state.activeTheme === 'vaporwave') {
-      drawVaporwave();
     } else {
-      drawCyberpunk();
+      drawVaporwave();
     }
     requestAnimationFrame(loop);
   }

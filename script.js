@@ -15,6 +15,13 @@ const state = {
   historyPointer: 0
 };
 
+// 1.5 HTML ESCAPING (prevents injected markup from user-typed input)
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 // 2. AUDIO SYNTHESIZER (WEB AUDIO API)
 function initAudio() {
   if (state.audioCtx) return;
@@ -322,7 +329,7 @@ function executeProject(projectId) {
           input.value = '';
           sounds.tick();
           
-          log.innerHTML += `\nuser> ${prompt}\n`;
+          log.innerHTML += `\nuser> ${escapeHtml(prompt)}\n`;
           log.scrollTop = log.scrollHeight;
           
           setTimeout(() => {
@@ -911,7 +918,7 @@ function handleCommand(cmdLine) {
   const sanitized = cmdLine.trim();
   
   // Output prompt command line
-  history.innerHTML += `\n<span class="terminal-prompt">guest@adamya:~$</span> ${sanitized}\n`;
+  history.innerHTML += `\n<span class="terminal-prompt">guest@adamya:~$</span> ${escapeHtml(sanitized)}\n`;
   
   if (sanitized === '') {
     history.scrollTop = history.scrollHeight;
@@ -953,7 +960,7 @@ function handleCommand(cmdLine) {
         changeTheme(themes[selected]);
         history.innerHTML += `Stylesheet loaded: ${themes[selected].toUpperCase()} Skin initialized.\n`;
       } else {
-        history.innerHTML += `Theme "${tokens[1]}" not found. Try classic or vapor.\n`;
+        history.innerHTML += `Theme "${escapeHtml(tokens[1])}" not found. Try classic or vapor.\n`;
         sounds.error();
       }
     }
@@ -965,7 +972,7 @@ function handleCommand(cmdLine) {
     const output = commands[cmd]();
     history.innerHTML += output + "\n";
   } else {
-    history.innerHTML += `Command "${cmd}" not found. Type "help" to list valid sub-routines.\n`;
+    history.innerHTML += `Command "${escapeHtml(cmd)}" not found. Type "help" to list valid sub-routines.\n`;
     sounds.error();
   }
   
@@ -1118,10 +1125,10 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     initAudio();
     
-    const name = document.getElementById('form-name').value;
-    const email = document.getElementById('form-email').value;
-    const message = document.getElementById('form-message').value;
-    
+    const name = escapeHtml(document.getElementById('form-name').value);
+    const email = escapeHtml(document.getElementById('form-email').value);
+    const message = escapeHtml(document.getElementById('form-message').value);
+
     // Print submission details directly in terminal for an immersive OS experience
     const consoleLog = `\n[INCOMING DATA PACKET RECEIVED]
 --------------------------------------------------

@@ -460,7 +460,13 @@ body.theme-vaporwave .terminal-body {
   flex-grow: 1;
   overflow-y: auto;
   margin-bottom: 10px;
-  white-space: pre-wrap;
+  /* Preserve exact spacing for ASCII art and allow horizontal scroll */
+  white-space: pre;
+  overflow-x: auto;
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  line-height: 1.08;
+  letter-spacing: 0;
 }
 
 .terminal-input-line {

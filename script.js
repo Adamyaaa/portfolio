@@ -10,7 +10,9 @@ const state = {
   audioCtx: null,
   focusedWindow: null,
   windowPositions: {},
-  terminalHistory: []
+  terminalHistory: [],
+  commandHistory: [],
+  historyPointer: 0
 };
 
 // 2. AUDIO SYNTHESIZER (WEB AUDIO API)
@@ -67,6 +69,27 @@ const sounds = {
     setTimeout(() => playTone(329.63, 'square', 0.06, 0.03), 60); // E4
     setTimeout(() => playTone(392.00, 'square', 0.06, 0.03), 120); // G4
     setTimeout(() => playTone(523.25, 'square', 0.12, 0.03), 180); // C5
+  },
+  windowClose: () => {
+    playTone(392.00, 'triangle', 0.08, 0.03); // G4
+    setTimeout(() => playTone(261.63, 'triangle', 0.12, 0.03), 80); // C4
+  },
+  windowMinimize: () => {
+    playTone(329.63, 'triangle', 0.05, 0.03); // E4
+    setTimeout(() => playTone(196.00, 'triangle', 0.1, 0.03), 50); // G3
+  },
+  windowMaximize: () => {
+    playTone(261.63, 'triangle', 0.06, 0.03); // C4
+    setTimeout(() => playTone(392.00, 'triangle', 0.06, 0.03), 60); // G4
+    setTimeout(() => playTone(523.25, 'triangle', 0.12, 0.03), 120); // C5
+  },
+  powerOn: () => {
+    if (!state.soundEnabled || !state.audioCtx) return;
+    playTone(196.00, 'sine', 0.08, 0.05); // G3
+    setTimeout(() => playTone(261.63, 'sine', 0.08, 0.05), 80); // C4
+    setTimeout(() => playTone(329.63, 'sine', 0.08, 0.05), 160); // E4
+    setTimeout(() => playTone(392.00, 'sine', 0.08, 0.05), 240); // G4
+    setTimeout(() => playTone(523.25, 'sine', 0.25, 0.05), 320); // C5
   },
   bootSweep: () => {
     if (!state.soundEnabled || !state.audioCtx) return;
@@ -190,6 +213,293 @@ function startOS() {
   }, 800);
 }
 
+// 4.5 SYSTEM POWER AND PROCESS CONTROLLERS
+function shutdownOS() {
+  initAudio();
+  sounds.windowClose();
+  const desktop = document.getElementById('desktop');
+  desktop.classList.add('shutdown');
+  
+  setTimeout(() => {
+    desktop.classList.add('hidden');
+    desktop.classList.remove('shutdown');
+    
+    // Reset all windows states to active/open so that if they reboot they start fresh
+    const windows = document.querySelectorAll('.window');
+    windows.forEach(win => {
+      win.classList.remove('minimized', 'maximized');
+    });
+    
+    document.getElementById('power-screen').classList.remove('hidden');
+  }, 650);
+}
+
+function rebootOS() {
+  initAudio();
+  sounds.windowClose();
+  const desktop = document.getElementById('desktop');
+  desktop.classList.add('shutdown');
+  
+  setTimeout(() => {
+    desktop.classList.add('hidden');
+    desktop.classList.remove('shutdown');
+    
+    // Clear terminal history
+    const history = document.getElementById('terminal-history');
+    if (history) history.innerHTML = '';
+    
+    // Reset window states
+    const windows = document.querySelectorAll('.window');
+    windows.forEach(win => {
+      win.classList.remove('minimized', 'maximized');
+    });
+    
+    // Boot loader reset and launch
+    const bootLoader = document.getElementById('boot-loader');
+    const bootLog = document.getElementById('boot-log');
+    const bootPrompt = document.getElementById('boot-prompt');
+    
+    bootLog.innerHTML = '';
+    bootPrompt.classList.add('hidden');
+    bootLoader.classList.remove('fade-out');
+    bootLoader.style.display = 'flex';
+    
+    runBootLoader();
+  }, 650);
+}
+
+function executeProject(projectId) {
+  initAudio();
+  sounds.windowOpen();
+  
+  // Check if already open
+  const existing = document.getElementById(`window-exec-${projectId}`);
+  if (existing) {
+    focusWindow(existing);
+    return;
+  }
+  
+  const execWindow = document.createElement('div');
+  execWindow.id = `window-exec-${projectId}`;
+  execWindow.className = 'window active';
+  execWindow.style.top = '20%';
+  execWindow.style.left = '25%';
+  execWindow.style.width = '42%';
+  execWindow.style.height = '50%';
+  execWindow.setAttribute('data-workspace', '');
+  
+  let title = '';
+  let customBodyHTML = '';
+  let runLogic = () => {};
+  let cleanupLogic = () => {};
+  
+  if (projectId === 'chat') {
+    title = 'C:\\SYSTEM\\CHAT_SIMULATOR.EXE';
+    customBodyHTML = `
+      <div class="terminal-body" style="height: 100%; display: flex; flex-direction: column;">
+        <div class="exec-log" style="flex-grow: 1; overflow-y: auto; font-family: var(--font-pixel); font-size: 18px; margin-bottom: 8px;"></div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span>guest@neural:~$</span>
+          <input type="text" class="exec-input" style="flex-grow: 1; background: none; border: none; outline: none; color: inherit; font-family: inherit; font-size: inherit;" placeholder="Ask AI something..." autofocus>
+        </div>
+      </div>
+    `;
+    runLogic = (container) => {
+      const log = container.querySelector('.exec-log');
+      const input = container.querySelector('.exec-input');
+      
+      log.innerHTML = `[NEURAL CHAT CONSOLE INITIALIZED]\nCONNECTING SECURE API ENDPOINT... CONNECTED.\nTYPE A PROMPT BELOW AND TRANSMIT.\n\n`;
+      
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const prompt = input.value.trim();
+          if (prompt === '') return;
+          input.value = '';
+          sounds.tick();
+          
+          log.innerHTML += `\nuser> ${prompt}\n`;
+          log.scrollTop = log.scrollHeight;
+          
+          setTimeout(() => {
+            sounds.success();
+            const responses = [
+              "PROCESSING VECTOR SHIFTS... HELLO GUEST. I AM THE NEURAL CORE INTELLECT.",
+              "RETRIEVING FROM DATABASE SECTOR 9... DATA VERIFIED.",
+              "ERROR 404: EMOTION CHIP NOT DETECTED. RETURNING PURE MATHEMATICAL LOGIC.",
+              "ANALYZING NEURAL DYNAMICS... THE ANSWER IS 42.",
+              "RETRO MONITOR SHIFT... INCOMING SIGNALS DETECTED. ENJOYING THE INTERFACE?"
+            ];
+            const resp = responses[Math.floor(Math.random() * responses.length)];
+            log.innerHTML += `system> ${resp}\n`;
+            log.scrollTop = log.scrollHeight;
+          }, 600);
+        }
+      });
+    };
+  } else if (projectId === 'synth') {
+    title = 'C:\\SYSTEM\\SYNTH_CHIPTRACK.EXE';
+    customBodyHTML = `
+      <div class="default-body" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center;">
+        <h3 class="section-title" style="width:100%;">Web Audio Sequencer</h3>
+        <div class="synth-visualizer" style="display: flex; gap: 6px; height: 80px; align-items: flex-end; margin-bottom: 20px; width: 100%; justify-content: center;">
+          <div class="visual-bar" style="width: 20px; height: 10px; background-color: var(--text-color);"></div>
+          <div class="visual-bar" style="width: 20px; height: 10px; background-color: var(--text-secondary);"></div>
+          <div class="visual-bar" style="width: 20px; height: 10px; background-color: var(--theme-color);"></div>
+          <div class="visual-bar" style="width: 20px; height: 10px; background-color: var(--text-color);"></div>
+          <div class="visual-bar" style="width: 20px; height: 10px; background-color: var(--text-secondary);"></div>
+          <div class="visual-bar" style="width: 20px; height: 10px; background-color: var(--theme-color);"></div>
+        </div>
+        <p style="font-size: 12px; margin-bottom: 12px;">Synthesizing 8-Bit Chiptune loops...</p>
+        <button class="synth-play-btn" style="padding: 8px 16px; border: 2px solid var(--btn-border); background-color: var(--btn-bg); color: var(--btn-text); font-family: var(--font-retro); font-size: 10px; box-shadow: var(--btn-shadow);">PLAY LOOP</button>
+      </div>
+    `;
+    runLogic = (container) => {
+      const playBtn = container.querySelector('.synth-play-btn');
+      const bars = container.querySelectorAll('.visual-bar');
+      let playInterval = null;
+      let isPlaying = false;
+      let notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+      
+      playBtn.addEventListener('click', () => {
+        initAudio();
+        if (isPlaying) {
+          isPlaying = false;
+          playBtn.textContent = 'PLAY LOOP';
+          clearInterval(playInterval);
+          bars.forEach(b => b.style.height = '10px');
+        } else {
+          isPlaying = true;
+          playBtn.textContent = 'STOP LOOP';
+          playInterval = setInterval(() => {
+            const freq = notes[Math.floor(Math.random() * notes.length)];
+            playTone(freq, 'square', 0.15, 0.04);
+            
+            bars.forEach((b) => {
+              const h = 10 + Math.random() * 60;
+              b.style.height = `${h}px`;
+            });
+          }, 180);
+        }
+      });
+      
+      cleanupLogic = () => {
+        if (playInterval) clearInterval(playInterval);
+      };
+    };
+  } else {
+    title = 'C:\\SYSTEM\\DATABASE_SHELL.EXE';
+    customBodyHTML = `
+      <div class="terminal-body" style="height: 100%; display: flex; flex-direction: column; font-size:16px;">
+        <div class="db-log" style="flex-grow: 1; overflow-y: auto; font-family: var(--font-pixel);"></div>
+        <button class="db-query-btn" style="align-self: center; margin-top: 10px; padding: 6px 12px; border: 2px solid var(--btn-border); background-color: var(--btn-bg); color: var(--btn-text); font-family: var(--font-retro); font-size: 8px;">GET CUSTOM_STYLES</button>
+      </div>
+    `;
+    runLogic = (container) => {
+      const log = container.querySelector('.db-log');
+      const btn = container.querySelector('.db-query-btn');
+      
+      log.innerHTML = `[CONNECTING TO MONGODB LOCALHOST SHELL...]\nCONNECTED SECTOR: portfolio_db_shard_01\n\n`;
+      
+      btn.addEventListener('click', () => {
+        sounds.click();
+        log.innerHTML += `> db.custom_settings.find().pretty()\n`;
+        setTimeout(() => {
+          sounds.success();
+          const jsonStr = JSON.stringify({
+            _id: "6a89c91b4ffc",
+            active_theme: state.activeTheme,
+            sound_enabled: state.soundEnabled,
+            user_session: "GUEST_USER_101",
+            host: "localhost:3000",
+            os_version: "ADAMYA.OS v1.0.8",
+            network_protocol: "SSL Secure Node"
+          }, null, 2);
+          log.innerHTML += `${jsonStr}\n\n`;
+          log.scrollTop = log.scrollHeight;
+        }, 300);
+      });
+    };
+  }
+  
+  execWindow.innerHTML = `
+    <div class="window-header">
+      <div class="window-title">
+        <span class="win-icon">⚙️</span> ${title}
+      </div>
+      <div class="window-controls">
+        <button class="win-btn close" title="Close">X</button>
+      </div>
+    </div>
+    <div class="window-body" style="display:flex; flex-direction:column; overflow:hidden;">
+      ${customBodyHTML}
+    </div>
+  `;
+  
+  const workspace = document.getElementById('workspace');
+  workspace.appendChild(execWindow);
+  
+  // Draggable header
+  const header = execWindow.querySelector('.window-header');
+  const closeBtn = execWindow.querySelector('.win-btn.close');
+  
+  execWindow.addEventListener('mousedown', () => {
+    focusWindow(execWindow);
+  });
+  
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sounds.windowClose();
+    cleanupLogic();
+    execWindow.remove();
+  });
+  
+  // Drag setup
+  let isDragging = false;
+  let startX, startY;
+  let origX, origY;
+
+  header.addEventListener('mousedown', (e) => {
+    if (window.innerWidth <= 768) return;
+    if (e.target.classList.contains('win-btn')) return;
+    
+    isDragging = true;
+    focusWindow(execWindow);
+    execWindow.style.transition = 'none';
+
+    startX = e.clientX;
+    startY = e.clientY;
+    
+    origX = execWindow.offsetLeft;
+    origY = execWindow.offsetTop;
+    
+    document.addEventListener('mousemove', dragMove);
+    document.addEventListener('mouseup', dragEnd);
+    e.preventDefault();
+  });
+
+  function dragMove(e) {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    let newX = origX + dx;
+    let newY = origY + dy;
+    
+    if (newY < 44) newY = 44;
+    execWindow.style.left = `${newX}px`;
+    execWindow.style.top = `${newY}px`;
+  }
+
+  function dragEnd() {
+    isDragging = false;
+    execWindow.style.transition = '';
+    document.removeEventListener('mousemove', dragMove);
+    document.removeEventListener('mouseup', dragEnd);
+  }
+  
+  focusWindow(execWindow);
+  runLogic(execWindow);
+}
+
 // 5. WINDOW MANAGEMENT & SMOOTH DRAGGING
 function setupWindows() {
   const workspace = document.getElementById('workspace');
@@ -197,10 +507,86 @@ function setupWindows() {
   const shortcutBtns = document.querySelectorAll('.shortcut-btn');
   const startBtn = document.getElementById('start-btn');
   
-  // Toggle Start Menu state (visual effect)
-  startBtn.addEventListener('click', () => {
+  // Toggle Start Menu state
+  startBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     sounds.click();
-    startBtn.classList.toggle('active');
+    const startMenu = document.getElementById('start-menu');
+    const isHidden = startMenu.classList.toggle('hidden');
+    if (!isHidden) {
+      startBtn.classList.add('active');
+    } else {
+      startBtn.classList.remove('active');
+    }
+  });
+
+  // Close Start Menu on outside click
+  document.addEventListener('click', (e) => {
+    const startMenu = document.getElementById('start-menu');
+    const startBtn = document.getElementById('start-btn');
+    if (!startMenu.classList.contains('hidden')) {
+      if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+        startMenu.classList.add('hidden');
+        startBtn.classList.remove('active');
+      }
+    }
+  });
+
+  // Start menu items click actions
+  const startMenuItems = document.querySelectorAll('.start-menu-item');
+  startMenuItems.forEach(item => {
+    if (item.classList.contains('system-control')) return;
+    item.addEventListener('click', () => {
+      sounds.click();
+      const targetId = item.getAttribute('data-target');
+      const win = document.getElementById(targetId);
+      if (win) {
+        win.classList.remove('minimized');
+        focusWindow(win);
+      }
+      document.getElementById('start-menu').classList.add('hidden');
+      document.getElementById('start-btn').classList.remove('active');
+    });
+  });
+
+  // Mobile submenu touch expansion
+  const submenuTrigger = document.querySelector('.start-menu-submenu-trigger');
+  if (submenuTrigger) {
+    submenuTrigger.addEventListener('click', (e) => {
+      if (window.innerWidth <= 768) {
+        e.stopPropagation();
+        submenuTrigger.classList.toggle('active-submenu');
+      }
+    });
+  }
+
+  // Theme submenu items
+  const themeSubmenuItems = document.querySelectorAll('.submenu-item');
+  themeSubmenuItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sounds.click();
+      const newTheme = item.getAttribute('data-theme');
+      changeTheme(newTheme);
+      document.getElementById('start-menu').classList.add('hidden');
+      document.getElementById('start-btn').classList.remove('active');
+    });
+  });
+
+  // Restart System
+  document.getElementById('menu-restart').addEventListener('click', () => {
+    sounds.click();
+    document.getElementById('start-menu').classList.add('hidden');
+    document.getElementById('start-btn').classList.remove('active');
+    rebootOS();
+  });
+
+  // Shut Down System
+  document.getElementById('menu-shutdown').addEventListener('click', () => {
+    sounds.click();
+    document.getElementById('start-menu').classList.add('hidden');
+    document.getElementById('start-btn').classList.remove('active');
+    shutdownOS();
   });
 
   windows.forEach(win => {
@@ -222,7 +608,7 @@ function setupWindows() {
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        sounds.click();
+        sounds.windowClose();
         win.classList.add('minimized');
         updateShortcutState(win.id, false);
       });
@@ -232,7 +618,7 @@ function setupWindows() {
     if (minBtn) {
       minBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        sounds.click();
+        sounds.windowMinimize();
         win.classList.add('minimized');
         updateShortcutState(win.id, false);
       });
@@ -242,7 +628,7 @@ function setupWindows() {
     if (maxBtn) {
       maxBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        sounds.click();
+        sounds.windowMaximize();
         win.classList.toggle('maximized');
       });
     }
@@ -375,6 +761,8 @@ const commands = {
   beep     - Trigger audio oscillator beep test
   date     - Query local system real-time clock
   clear    - Flush console buffer log
+  restart  - Warm reboot the system diagnostics sequencer
+  shutdown - Perform screen collapse system power down
   bebop    - Run C:\\SYSTEM\\BEBOP.EXE secret module
   help     - Display this command dictionary`;
   },
@@ -399,39 +787,48 @@ CONTACT POINT: your.email@example.com
   skills: () => {
     return `[SKILLS SYSTEM MAP INDEX]
 --------------------------------------------------
-FRONTEND INTEGRATION:
-  HTML5 / CSS3  [====================] 95%
-  JavaScript    [==================..] 90%
-  React/NextJS  [=================...] 85%
-  
-BACKEND ENGINE:
-  NodeJS/Express [================...] 80%
-  Python/Django  [===============.....] 75%
-  SQL/MongoDB    [================...] 80%
-  
-UTILITY SHELL:
-  Git Versioning [==================..] 90%
-  Docker Container [==============......] 70%
+PROGRAMMING LANGUAGES:
+  C, C++, Python, JavaScript, TypeScript, SQL
+
+FRONTEND:
+  React.js, Next.js, TailwindCSS, HTML, CSS
+
+BACKEND:
+  Node.js, Express.js, REST APIs, Microservices
+
+DATABASE SYSTEMS:
+  MongoDB, MySQL, PostgreSQL
+
+TOOLS & PLATFORMS:
+  Git, GitHub, Docker, Vercel, Figma
+
+CORE CS:
+  DSA, OOPS, DBMS, OS, Computer Networks
 --------------------------------------------------`;
   },
-  
+
   projects: () => {
     return `[PROJECT LOG DIRECTORY FETCHED]
 --------------------------------------------------
-[1] NEURAL CHAT CONSOLE
-    Description: Retro style LLM chat screen simulating rolling text lines.
-    Stack: React, Express, OpenAI API
-    Repository: https://github.com/Adamyaaa
+[1] LLM FAILOVER & CONTEXT HANDOVER EXTENSION
+    Description: Chrome Extension automating conversation migration
+    across Claude, ChatGPT, and Gemini with 6 failover paths and full
+    chat-history preservation.
+    Stack: JavaScript, Manifest V3, Chrome APIs, Shadow DOM, Puppeteer
+    Repository: https://github.com/Adamyaaa/LLM-failover-handover
 
-[2] SYNTH-WAVE CHIPTRACK
-    Description: Synthesizer loop sequencer built with browser AudioNodes.
-    Stack: HTML5 Canvas, Web Audio API
-    Repository: https://github.com/Adamyaaa
+[2] VERICODE (DIGITAL LOGIC & HDL PLATFORM)
+    Description: Cloud-based Verilog compiler generating interactive
+    signal waveforms in under 2 seconds, with a nested-reply discussion
+    forum and role-based moderation.
+    Stack: React, Node.js, Express, MongoDB, Firebase, JDoodle API
+    Live Link: https://ece-platform.vercel.app
 
-[3] RETRO-OS SHELL DATABASE
-    Description: Dashboard for custom styling configurations and profile data.
-    Stack: Next.js, Tailwinds, MongoDB
-    Repository: https://github.com/Adamyaaa
+[3] SUBSCRIPTION MANAGEMENT BACKEND
+    Description: RESTful Node.js/Express backend with 16 endpoints,
+    MVC and microservices patterns, JWT auth, and bcrypt hashing.
+    Stack: Node.js, Express.js, MongoDB, Mongoose, JWT, Bcrypt
+    Repository: https://github.com/Adamyaaa/subsciption-manager
 --------------------------------------------------`;
   },
   
@@ -509,6 +906,18 @@ function handleCommand(cmdLine) {
     history.innerHTML = '';
     return;
   }
+
+  if (cmd === 'reboot' || cmd === 'restart') {
+    history.innerHTML += `Initializing system warm reboot...\n`;
+    setTimeout(rebootOS, 600);
+    return;
+  }
+  
+  if (cmd === 'shutdown' || cmd === 'off') {
+    history.innerHTML += `Terminating Adamya.OS processes... Goodbye.\n`;
+    setTimeout(shutdownOS, 600);
+    return;
+  }
   
   if (cmd === 'theme') {
     if (tokens.length < 2) {
@@ -582,14 +991,59 @@ document.addEventListener('DOMContentLoaded', () => {
   const contactSuccess = document.getElementById('contact-success');
   const cursor = document.getElementById('custom-cursor');
   
-  // Terminal keyboard events
+  // Terminal keyboard events (with history and autocomplete)
   termInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const val = termInput.value;
+      if (val.trim() !== '') {
+        if (state.commandHistory.length === 0 || state.commandHistory[state.commandHistory.length - 1] !== val) {
+          state.commandHistory.push(val);
+        }
+        state.historyPointer = state.commandHistory.length;
+      }
       handleCommand(val);
       termInput.value = '';
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (state.commandHistory.length > 0 && state.historyPointer > 0) {
+        state.historyPointer--;
+        termInput.value = state.commandHistory[state.historyPointer];
+      }
+      sounds.tick();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (state.historyPointer < state.commandHistory.length - 1) {
+        state.historyPointer++;
+        termInput.value = state.commandHistory[state.historyPointer];
+      } else {
+        state.historyPointer = state.commandHistory.length;
+        termInput.value = '';
+      }
+      sounds.tick();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const val = termInput.value.trim().toLowerCase();
+      const availableCmds = Object.keys(commands).concat(['clear', 'theme', 'reboot', 'restart', 'shutdown', 'off']);
+      
+      if (val === '') {
+        termHistory.innerHTML += `\nAvailable commands: ${availableCmds.join(', ')}\n`;
+        termHistory.scrollTop = termHistory.scrollHeight;
+        sounds.tick();
+        return;
+      }
+
+      const matches = availableCmds.filter(c => c.startsWith(val));
+      if (matches.length === 1) {
+        termInput.value = matches[0] + ' ';
+        sounds.success();
+      } else if (matches.length > 1) {
+        termHistory.innerHTML += `\nMatches: ${matches.join(', ')}\n`;
+        termHistory.scrollTop = termHistory.scrollHeight;
+        sounds.tick();
+      } else {
+        sounds.error();
+      }
     } else if (e.key.length === 1) {
-      // Play mechanical typewriter ticks
       sounds.tick();
     }
   });
@@ -597,6 +1051,38 @@ document.addEventListener('DOMContentLoaded', () => {
   // Focus terminal input if terminal window clicked
   document.getElementById('window-terminal').addEventListener('click', () => {
     termInput.focus();
+  });
+
+  // Project Executor Triggers
+  const projectTriggers = document.querySelectorAll('.exec-project-trigger');
+  projectTriggers.forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      const pId = trigger.getAttribute('data-project');
+      executeProject(pId);
+    });
+  });
+
+  // Power Screen Turn On Trigger
+  document.getElementById('power-on-btn').addEventListener('click', () => {
+    document.getElementById('power-screen').classList.add('hidden');
+    
+    initAudio();
+    if (state.audioCtx && state.audioCtx.state === 'suspended') {
+      state.audioCtx.resume();
+    }
+    sounds.powerOn();
+    
+    const bootLoader = document.getElementById('boot-loader');
+    const bootLog = document.getElementById('boot-log');
+    const bootPrompt = document.getElementById('boot-prompt');
+    
+    bootLog.innerHTML = '';
+    bootPrompt.classList.add('hidden');
+    bootLoader.classList.remove('fade-out');
+    bootLoader.style.display = 'flex';
+    
+    runBootLoader();
   });
 
   // Sound Toggle Control

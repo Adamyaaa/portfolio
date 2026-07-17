@@ -204,7 +204,10 @@ function startOS() {
     
     // Set up dragging and window actions
     setupWindows();
-    
+
+    // Only the terminal is open by default; focus it
+    focusWindow(document.getElementById('window-terminal'));
+
     // Run terminal welcoming typing effect
     runTerminalWelcome();
     
@@ -224,12 +227,13 @@ function shutdownOS() {
     desktop.classList.add('hidden');
     desktop.classList.remove('shutdown');
     
-    // Reset all windows states to active/open so that if they reboot they start fresh
+    // Reset windows so only the terminal is open on next boot
     const windows = document.querySelectorAll('.window');
     windows.forEach(win => {
-      win.classList.remove('minimized', 'maximized');
+      win.classList.remove('maximized');
+      win.classList.toggle('minimized', win.id !== 'window-terminal');
     });
-    
+
     document.getElementById('power-screen').classList.remove('hidden');
   }, 650);
 }
@@ -248,12 +252,13 @@ function rebootOS() {
     const history = document.getElementById('terminal-history');
     if (history) history.innerHTML = '';
     
-    // Reset window states
+    // Reset windows so only the terminal is open on next boot
     const windows = document.querySelectorAll('.window');
     windows.forEach(win => {
-      win.classList.remove('minimized', 'maximized');
+      win.classList.remove('maximized');
+      win.classList.toggle('minimized', win.id !== 'window-terminal');
     });
-    
+
     // Boot loader reset and launch
     const bootLoader = document.getElementById('boot-loader');
     const bootLog = document.getElementById('boot-log');
@@ -743,7 +748,6 @@ const terminalWelcomeText = `==================================================
 /_/  |_/_____/_/  |_/_/  /_/   /_/_/  |_|
                                          
 Welcome to Adamya Terminal Core [Version 1.0.8]
-Host sector: localhost:3000 (Secure SSL Encrypted)
 Session status: CONNECTED AS GUEST_USER
 
 Type "help" to get a directory list of command modules.

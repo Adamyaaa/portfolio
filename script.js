@@ -380,17 +380,17 @@ const commands = {
   about: () => {
     return `[SYSTEM DESCRIPTION DATA RETRIEVED]
 --------------------------------------------------
-USERID: Adamya
-CLASSIFICATION: Full-Stack Software Developer
-CORE PROTOCOLS: Web Architect, Frontend Designer, System Architect
-LOCATION: New Delhi, India
+USERID: Adamya Jain
+CLASSIFICATION: Full-Stack Developer Intern at I-Agents Lab
+CORE PROTOCOLS: Web Architect, Backend Systems, System Design
+LOCATION: Nagpur, India
 
 BIO TRANSMISSION:
   Highly passionate developer focused on responsive UI, smooth UX,
   and scalable server interfaces. Love building projects that blend
   high-end interactive aesthetics with top-tier logic execution.
   
-CONTACT POINT: your.email@example.com
+CONTACT POINT: jainadamya13@gmail.com
 --------------------------------------------------`;
   },
 
@@ -399,37 +399,37 @@ CONTACT POINT: your.email@example.com
 --------------------------------------------------
 FRONTEND INTEGRATION:
   HTML5 / CSS3  [====================] 95%
-  JavaScript    [==================..] 90%
+  JavaScript/TS [==================..] 90%
   React/NextJS  [=================...] 85%
   
 BACKEND ENGINE:
   NodeJS/Express [================...] 80%
-  Python/Django  [===============.....] 75%
-  SQL/MongoDB    [================...] 80%
+  NestJS/Prisma  [===============.....] 75%
+  SQL/Redis      [================...] 80%
   
 UTILITY SHELL:
   Git Versioning [==================..] 90%
-  Docker Container [==============......] 70%
+  Docker/AWS S3  [==============......] 70%
 --------------------------------------------------`;
   },
 
   projects: () => {
     return `[PROJECT LOG DIRECTORY FETCHED]
 --------------------------------------------------
-[1] NEURAL CHAT CONSOLE
-    Description: Retro style LLM chat screen simulating rolling text lines.
-    Stack: React, Express, OpenAI API
-    Repository: https://github.com/Adamyaaa
+[1] CAREER RISE
+    Description: Cohort-based learning platform.
+    Stack: NestJS, Next.js, Postgres, Redis
+    Repository: https://github.com/Adamyaaa/career-rise
 
-[2] SYNTH-WAVE CHIPTRACK
-    Description: Synthesizer loop sequencer built with browser AudioNodes.
-    Stack: HTML5 Canvas, Web Audio API
-    Repository: https://github.com/Adamyaaa
+[2] VERICODE
+    Description: Digital logic & HDL platform with cloud Verilog.
+    Stack: React, Node.js, Express, MongoDB
+    Repository: https://github.com/Adamyaaa/ece-platform
 
-[3] RETRO-OS SHELL DATABASE
-    Description: Dashboard for custom styling configurations and profile data.
-    Stack: Next.js, Tailwinds, MongoDB
-    Repository: https://github.com/Adamyaaa
+[3] ASK MY NOTES
+    Description: Local RAG with FAISS and Gemini LLM.
+    Stack: Python, FAISS, Gemini API
+    Repository: https://github.com/Adamyaaa/ask-my-notes
 --------------------------------------------------`;
   },
 

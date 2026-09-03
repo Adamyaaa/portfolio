@@ -197,10 +197,22 @@ function setupWindows() {
   const shortcutBtns = document.querySelectorAll('.shortcut-btn');
   const startBtn = document.getElementById('start-btn');
 
-  // Toggle Start Menu state (visual effect)
-  startBtn.addEventListener('click', () => {
+  const startMenu = document.getElementById('start-menu');
+
+  // Toggle Start Menu state
+  startBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     sounds.click();
     startBtn.classList.toggle('active');
+    startMenu.classList.toggle('hidden');
+  });
+
+  // Close start menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+      startMenu.classList.add('hidden');
+      startBtn.classList.remove('active');
+    }
   });
 
   windows.forEach(win => {
@@ -319,6 +331,25 @@ function setupWindows() {
       } else {
         focusWindow(win);
       }
+    });
+  });
+
+  // Start menu items listener
+  const startMenuItems = document.querySelectorAll('.start-menu-item[data-target]');
+  startMenuItems.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sounds.click();
+      const targetId = btn.getAttribute('data-target');
+      const win = document.getElementById(targetId);
+      
+      win.classList.remove('minimized');
+      focusWindow(win);
+      
+      // Close start menu
+      const startMenu = document.getElementById('start-menu');
+      const startBtn = document.getElementById('start-btn');
+      startMenu.classList.add('hidden');
+      startBtn.classList.remove('active');
     });
   });
 }
@@ -633,6 +664,34 @@ STATUS: INBOX PACKET ROUTED SUCCESSFULLY.
   document.addEventListener('mouseenter', () => {
     cursor.style.display = 'block';
   });
+
+  // System Power Controls
+  const menuRestart = document.getElementById('menu-restart');
+  const menuShutdown = document.getElementById('menu-shutdown');
+  const powerScreen = document.getElementById('power-screen');
+  const powerOnBtn = document.getElementById('power-on-btn');
+
+  if (menuRestart) {
+    menuRestart.addEventListener('click', () => {
+      sounds.click();
+      location.reload();
+    });
+  }
+
+  if (menuShutdown) {
+    menuShutdown.addEventListener('click', () => {
+      sounds.click();
+      document.getElementById('desktop').classList.add('hidden');
+      powerScreen.classList.remove('hidden');
+    });
+  }
+
+  if (powerOnBtn) {
+    powerOnBtn.addEventListener('click', () => {
+      sounds.click();
+      location.reload();
+    });
+  }
 
   // Start the live interactive canvas background
   initInteractiveBackground();

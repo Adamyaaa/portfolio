@@ -400,7 +400,6 @@ const commands = {
   about    - Query Developer background system variables
   skills   - Display skills catalog mapping and ratings
   projects - Query listing of deployed sub-routines
-  contact  - View mail link endpoint contact form rules
   beep     - Trigger audio oscillator beep test
   date     - Query local system real-time clock
   clear    - Flush console buffer log
@@ -464,15 +463,6 @@ UTILITY SHELL:
 --------------------------------------------------`;
   },
 
-  contact: () => {
-    return `[ENDPOINT CONTACT INSTRUCTIONS]
---------------------------------------------------
-To transmit packets directly to Adamya:
-  Option A: Fill details in C:\\SYSTEM\\CONTACT.EXE form UI.
-  Option B: Send standard SMTP electronic mail to your.email@example.com
-  Option C: Establish direct sockets at LinkedIn / GitHub.
---------------------------------------------------`;
-  },
 
   date: () => {
     return `System Clock: ${new Date().toString()}`;
@@ -578,8 +568,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const termHistory = document.getElementById('terminal-history');
   const soundToggle = document.getElementById('sound-toggle');
   const soundIcon = document.getElementById('sound-icon');
-  const contactForm = document.getElementById('contact-form');
-  const contactSuccess = document.getElementById('contact-success');
   const cursor = document.getElementById('custom-cursor');
 
   // Terminal keyboard events
@@ -608,33 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sounds.click();
   });
 
-  // Contact Form Submission Action
-  contactForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    initAudio();
 
-    const name = document.getElementById('form-name').value;
-    const email = document.getElementById('form-email').value;
-    const message = document.getElementById('form-message').value;
-
-    // Print submission details directly in terminal for an immersive OS experience
-    const consoleLog = `\n[INCOMING DATA PACKET RECEIVED]
---------------------------------------------------
-ROUTING: C:\\MAILBOX\\GUEST_MESSAGES\\
-SENDER: ${name} (${email})
-BODY: "${message}"
-STATUS: INBOX PACKET ROUTED SUCCESSFULLY.
---------------------------------------------------`;
-
-    termHistory.innerHTML += consoleLog + "\n";
-    termHistory.scrollTop = termHistory.scrollHeight;
-
-    sounds.success();
-
-    // Transition form to success message
-    contactForm.classList.add('hidden');
-    contactSuccess.classList.remove('hidden');
-  });
 
   // Custom Cursor mouse tracking
   document.addEventListener('mousemove', (e) => {
